@@ -1,28 +1,30 @@
-import React, { useState } from "react";
-import { View, Text, Button, TextInput, StyleSheet } from "react-native";
+import React, { useEffect, useState } from "react";
+import { View, Text, FlatList, TextInput, StyleSheet } from "react-native";
+import tasks from "../data/dadosTarefas";
 
 export default function TelaTarefas() {
     const [tarefas, definirTarefas] = useState([]);
-    const [novaTarefa, definirNovaTarefa] = useState("");
 
-    const adicionarTarefa = () => {
-        definirTarefas([...tarefas, novaTarefa]);
-        definirNovaTarefa("");
-    };
+    useEffect(() => {
+        definirTarefas(tasks);
+    }, []);
+
+    const renderTarefa = ({ item }) => (
+        <View style={styles.tarefaContainer}>
+            <Text style={styles.tarefaNome}>{item.nome}</Text>
+            <Text>{item.descricao}</Text>
+            <Text>{item.data}</Text>
+            <Text>{item.status ? "Concluída" : "Pendente"}</Text>
+        </View>
+    );
 
     return (
         <View style={styles.container}>
-            <Text>Tarefas</Text>
-            <TextInput
-                placeholder="Digite uma tarefa"
-                value={novaTarefa}
-                onChangeText={definirNovaTarefa}
-                style={styles.input}
+            <FlatList
+                data={tarefas}
+                renderItem={renderTarefa}
+                keyExtractor={(item, index) => index.toString()}
             />
-            <Button title="Adicionar Tarefa" onPress={adicionarTarefa} />
-            {tarefas.map((tarefa, index) => (
-                <Text key={index}>{tarefa}</Text>
-            ))}
         </View>
     );
 }
@@ -30,15 +32,21 @@ export default function TelaTarefas() {
 const styles = StyleSheet.create({  
     container: {
         flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
+        padding: 20,
     },
-    input: {
-        height: 40,
-        borderColor: "gray",
-        borderWidth: 1,
+    tarefaContainer: {
+        backgroundColor: "#f9f9f9",
+        padding: 15,
         marginBottom: 10,
-        paddingHorizontal: 8,
-        width: "80%",
+        borderRadius: 5,
+        shadowColor: "#000",
+        shadowOpacity: 0.1,
+        shadowOffset: { width: 0, height: 0 },
+        shadowRadius: 5,
+    },
+    tarefaNome: {
+        fontWeight: "bold",
+        fontSize: 18,
+        marginBottom: 5,
     },
 });
