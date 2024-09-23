@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, FlatList, TextInput, StyleSheet, Button } from "react-native";
 import tasks from "../data/dadosTarefas";
+import CardTarefa from "../components/CardTarefa";
 
 const obterDataFormatada = () => {
     const hoje = new Date();
@@ -58,12 +59,12 @@ export default function TelaTarefas() {
     };
 
     const renderTarefa = ({ item }) => (
-        <View style={styles.tarefaContainer}>
-            <Text style={styles.tarefaNome}>{item.nome}</Text>
-            <Text>{item.descricao}</Text>
-            <Text>{item.data}</Text>
-            <Text>{item.status ? "Concluída" : "Pendente"}</Text>
-        </View>
+        <CardTarefa
+            titulo={item.nome}
+            descricao={item.descricao}
+            data={item.data}
+            status={item.status}
+        />
     );
 
     return (
@@ -100,21 +101,6 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight: "bold",
         marginBottom: 10,
-    },
-    tarefaContainer: {
-        backgroundColor: "#f9f9f9",
-        padding: 15,
-        marginBottom: 10,
-        borderRadius: 5,
-        shadowColor: "#000",
-        shadowOpacity: 0.1,
-        shadowOffset: { width: 0, height: 0 },
-        shadowRadius: 5,
-    },
-    tarefaNome: {
-        fontWeight: "bold",
-        fontSize: 18,
-        marginBottom: 5,
     },
     inputContainer: {
         marginBottom: 20,
