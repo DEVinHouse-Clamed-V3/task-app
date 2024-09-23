@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { View, Text, FlatList, TextInput, StyleSheet, Button } from "react-native";
 import tasks from "../data/dadosTarefas";
 import CardTarefa from "../components/CardTarefa";
+import ModalNovaTarefa from "../components/ModalNovaTarefa";
 
 const obterDataFormatada = () => {
     const hoje = new Date();
@@ -38,24 +39,22 @@ const obterDataFormatada = () => {
 };
 
 export default function TelaTarefas() {
-    const [tarefas, definirTarefas] = useState([]);
-    const [novaTarefa, definirNovaTarefa] = useState("");
-    const [modalVisivel, definirModalVisivel] = useState(false);
+    const [tarefas, setTarefas] = useState([]);
+    const [modalVisivel, setModalVisivel] = useState(false);
 
     useEffect(() => {
-        definirTarefas(tasks);
+        setTarefas(tasks);
     }, []);
 
-    const adicionarTarefa = () => {
+    const adicionarTarefa = (novaTarefa) => {
         const nova = {
-            nome: novaTarefa,
-            descricao: "Nova tarefa adicionada",
+            nome: novaTarefa.titulo,
+            descricao: novaTarefa.descricao || "Sem descrição",
             status: false,
-            data: obterDataFormatada(),
+            data: novaTarefa.data || obterDataFormatada(),
         };
-        definirTarefas([...tarefas, nova]);
-        definirNovaTarefa("");
-        definirModalVisivel(false);
+        setTarefas([...tarefas, nova]);
+        setModalVisivel(false);
     };
 
     const renderTarefa = ({ item }) => (
@@ -70,19 +69,15 @@ export default function TelaTarefas() {
     return (
         <View style={styles.container}>
             <Text style={styles.dataTexto}>{obterDataFormatada()}</Text>
-            <Button title="Nova Tarefa" onPress={() => definirModalVisivel(true)} />
-            {modalVisivel && (
-                <View style={styles.inputContainer}>
-                    <TextInput
-                        placeholder="Nome da tarefa"
-                        value={novaTarefa}
-                        onChangeText={definirNovaTarefa}
-                        style={styles.input}
-                    />
-                    <Button title="Adicionar" onPress={adicionarTarefa} />
-                    <Button title="Cancelar" onPress={() => definirModalVisivel(false)} />
-                </View>
-            )}
+
+            <Button title="Nova Tarefa" onPress={() => setModalVisivel(true)} />
+            
+            <ModalNovaTarefa
+                visivel={modalVisivel}
+                aoFechar={() => setModalVisivel(false)}
+                aoSalvar={adicionarTarefa}
+            />
+
             <FlatList
                 data={tarefas}
                 renderItem={renderTarefa}
@@ -101,16 +96,5 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight: "bold",
         marginBottom: 10,
-    },
-    inputContainer: {
-        marginBottom: 20,
-    },
-    input: {
-        height: 40,
-        borderWidth: 1,
-        borderColor: "gray",
-        paddingHorizontal: 8,
-        marginBottom: 10,
-        width: "100%",
     },
 });
