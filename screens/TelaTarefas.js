@@ -41,6 +41,7 @@ const obterDataFormatada = () => {
 export default function TelaTarefas() {
     const [tarefas, setTarefas] = useState([]);
     const [modalVisivel, setModalVisivel] = useState(false);
+    const [filtro, setFiltro] = useState("");
 
     useEffect(() => {
         setTarefas(tasks);
@@ -57,6 +58,8 @@ export default function TelaTarefas() {
         setModalVisivel(false);
     };
 
+    const filtrarTarefas = tarefas.filter(tarefa => tarefa.nome.toLowerCase().includes(filtro.toLowerCase()));
+
     const renderTarefa = ({ item }) => (
         <CardTarefa
             titulo={item.nome}
@@ -70,6 +73,13 @@ export default function TelaTarefas() {
         <View style={styles.container}>
             <Text style={styles.dataTexto}>{obterDataFormatada()}</Text>
 
+            <TextInput
+                placeholder="Filtrar tarefas"
+                value={filtro}
+                onChangeText={setFiltro}
+                style={styles.inputFiltro}
+            />
+
             <Button title="Nova Tarefa" onPress={() => setModalVisivel(true)} />
             
             <ModalNovaTarefa
@@ -79,7 +89,7 @@ export default function TelaTarefas() {
             />
 
             <FlatList
-                data={tarefas}
+                data={filtrarTarefas}
                 renderItem={renderTarefa}
                 keyExtractor={(item, index) => index.toString()}
             />
@@ -97,4 +107,12 @@ const styles = StyleSheet.create({
         fontWeight: "bold",
         marginBottom: 10,
     },
+    inputFiltro: {
+        fontSize: 16,
+        padding: 10,
+        borderColor: "#ddd",
+        borderWidth: 1,
+        marginBottom: 15,
+    },
+    
 });
