@@ -6,6 +6,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import TelaTarefas from './screens/TelaTarefas';
 import TelaConfiguracoes from './screens/TelaConfiguracoes';
 import TelaUltimasAtividades from './screens/TelaUltimasAtividades';
+import TelaMensagens from './screens/TelaMensagens';
 
 
 const abas = createBottomTabNavigator();
@@ -17,6 +18,7 @@ export default function App() {
         <abas.Screen name="Tarefas" component={TelaTarefas} />
         <abas.Screen name="Configurações" component={TelaConfiguracoes} />
         <abas.Screen name="Atividades" component={TelaUltimasAtividades} />
+        <abas.Screen name="Mensagens" component={TelaMensagens} />
       </abas.Navigator>
     </NavigationContainer>
   );
