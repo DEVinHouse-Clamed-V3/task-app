@@ -3,6 +3,7 @@ import { View, Text, FlatList, TextInput, StyleSheet, Button } from "react-nativ
 import tasks from "../data/dadosTarefas";
 import CardTarefa from "../components/CardTarefa";
 import ModalNovaTarefa from "../components/ModalNovaTarefa";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const obterDataFormatada = () => {
     const hoje = new Date();
@@ -44,21 +45,50 @@ export default function TelaTarefas() {
     const [filtro, setFiltro] = useState("");
 
     useEffect(() => {
-        setTarefas(tasks);
+        const carregarTarefas = async () => {
+            try {
+                const tarefasSalvas = await AsyncStorage.getItem("tarefas");
+                if (tarefasSalvas !== null) {
+                    setTarefas(JSON.parse(tarefasSalvas));
+                } else {
+                    setTarefas(tasks);
+                }
+            } catch (error) {
+                console.log(error);
+            }
+        };
+
+        carregarTarefas();
     }, []);
 
+    const salvarTarefas = async (tarefas) => {
+        try {
+            await AsyncStorage.setItem("tarefas", JSON.stringify(tarefas));
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
     const adicionarTarefa = (novaTarefa) => {
+        if (!novaTarefa.titulo) {
+            alert("O título da tarefa é obrigatório");
+            return;
+        }
         const nova = {
             nome: novaTarefa.titulo,
             descricao: novaTarefa.descricao || "Sem descrição",
             status: false,
             data: novaTarefa.data || obterDataFormatada(),
         };
-        setTarefas([...tarefas, nova]);
+        const novasTarefas = [...tarefas, nova];
+        setTarefas(novasTarefas);
+        salvarTarefas(novasTarefas);
         setModalVisivel(false);
     };
 
-    const filtrarTarefas = tarefas.filter(tarefa => tarefa.nome.toLowerCase().includes(filtro.toLowerCase()));
+    const filtrarTarefas = tarefas.filter(tarefa => 
+        tarefa.nome && typeof tarefa.nome === "string" && tarefa.nome.toLowerCase().includes(filtro.toLowerCase())
+    );
 
     const renderTarefa = ({ item }) => (
         <CardTarefa
@@ -81,7 +111,7 @@ export default function TelaTarefas() {
             />
 
             <Button title="Nova Tarefa" onPress={() => setModalVisivel(true)} />
-            
+
             <ModalNovaTarefa
                 visivel={modalVisivel}
                 aoFechar={() => setModalVisivel(false)}
@@ -114,5 +144,5 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         marginBottom: 15,
     },
-    
+
 });
