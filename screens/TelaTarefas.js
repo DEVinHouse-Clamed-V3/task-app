@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, FlatList, TextInput, StyleSheet, Button } from "react-native";
+import { View, Text, FlatList, TextInput, StyleSheet, Button, TouchableOpacity } from "react-native";
 import tasks from "../data/dadosTarefas";
 import CardTarefa from "../components/CardTarefa";
 import ModalNovaTarefa from "../components/ModalNovaTarefa";
@@ -43,6 +43,7 @@ export default function TelaTarefas() {
     const [tarefas, setTarefas] = useState([]);
     const [modalVisivel, setModalVisivel] = useState(false);
     const [filtro, setFiltro] = useState("");
+    const [atividades, setAtividades] = useState([]);
 
     useEffect(() => {
         const carregarTarefas = async () => {
@@ -58,12 +59,32 @@ export default function TelaTarefas() {
             }
         };
 
+        const carregarAtividades = async () => {
+            try {
+                const atividadesSalvas = await AsyncStorage.getItem("atividades");
+                if (atividadesSalvas !== null) {
+                    setAtividades(JSON.parse(atividadesSalvas));
+                }
+            } catch (error) {
+                console.log(error);
+            }
+        };
+
         carregarTarefas();
+        carregarAtividades();
     }, []);
 
     const salvarTarefas = async (tarefas) => {
         try {
             await AsyncStorage.setItem("tarefas", JSON.stringify(tarefas));
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
+    const salvarAtividades = async (atividades) => {
+        try {
+            await AsyncStorage.setItem("atividades", JSON.stringify(atividades));
         } catch (error) {
             console.log(error);
         }
@@ -86,17 +107,42 @@ export default function TelaTarefas() {
         setModalVisivel(false);
     };
 
-    const filtrarTarefas = tarefas.filter(tarefa => 
+    const concluirTarefa = (index) => {
+        const novasTarefas = [...tarefas];
+        novasTarefas[index].status = true;
+
+        const novaAtividade = {
+            nome: novasTarefas[index]?.nome || "Tarefa",
+            descricao: novasTarefas[index]?.descricao || "Sem descrição",
+            data: obterDataFormatada(),
+        };
+
+        const novasAtividades = [novaAtividade, ...atividades];
+        setAtividades(novasAtividades);
+
+        salvarTarefas(novasTarefas);
+        salvarAtividades(novasAtividades);
+        setTarefas(novasTarefas);
+    }
+
+    const filtrarTarefas = tarefas.filter(tarefa =>
         tarefa.nome && typeof tarefa.nome === "string" && tarefa.nome.toLowerCase().includes(filtro.toLowerCase())
     );
 
     const renderTarefa = ({ item }) => (
-        <CardTarefa
-            titulo={item.nome}
-            descricao={item.descricao}
-            data={item.data}
-            status={item.status}
-        />
+        <View>
+            <CardTarefa
+                titulo={item.nome}
+                descricao={item.descricao}
+                data={item.data}
+                status={item.status}
+            />
+            {!item.status && (
+                <TouchableOpacity onPress={() => concluirTarefa(tarefas.indexOf(item))}>
+                    <Text style={styles.botaoConcluir}>Marcar como Concluída</Text>
+                </TouchableOpacity>
+            )}
+        </View>
     );
 
     return (
@@ -143,6 +189,12 @@ const styles = StyleSheet.create({
         borderColor: "#ddd",
         borderWidth: 1,
         marginBottom: 15,
+    },
+    botaoConcluir: {
+        color: "blue",
+        marginTop: 5,
+        marginBottom: 10,
+        textDecorationLine: "underline",
     },
 
 });
