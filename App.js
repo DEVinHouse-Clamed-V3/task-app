@@ -5,6 +5,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import TelaTarefas from './screens/TelaTarefas';
 import TelaConfiguracoes from './screens/TelaConfiguracoes';
+import TelaUltimasAtividades from './screens/TelaUltimasAtividades';
 
 
 const abas = createBottomTabNavigator();
@@ -15,6 +16,7 @@ export default function App() {
       <abas.Navigator>
         <abas.Screen name="Tarefas" component={TelaTarefas} />
         <abas.Screen name="Configurações" component={TelaConfiguracoes} />
+        <abas.Screen name="Atividades" component={TelaUltimasAtividades} />
       </abas.Navigator>
     </NavigationContainer>
   );
